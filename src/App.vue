@@ -156,7 +156,7 @@ import {
   TrashIcon,
   UserIcon,
 } from "@heroicons/vue/24/solid";
-import { ref } from "vue";
+import { ref, onMounted, onUnmounted } from "vue";
 import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
 import calendar from "dayjs/plugin/calendar";
@@ -201,9 +201,17 @@ let interval;
 
 const syncTime = () => {
   server.value = dayjs();
-  clearInterval(interval);
-  interval = setInterval(() => (server.value = server.value.add(1000)), 1000);
 };
+
+onMounted(() => {
+  interval = setInterval(() => {
+    syncTime();
+  }, 1000);
+});
+
+onUnmounted(() => {
+  clearInterval(interval);
+});
 
 const randomUUID = () => crypto.randomUUID();
 </script>
