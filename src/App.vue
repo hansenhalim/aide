@@ -274,7 +274,7 @@ const syncTime = () => {
 };
 
 const newSchedule = ref({
-  name: "Schedule #1",
+  name: "Schedule #3",
   dispatched_at: dayjs().add(8, "h").startOf("h").toISOString().slice(0, -5),
 });
 
