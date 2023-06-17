@@ -105,11 +105,11 @@
                       class="whitespace-nowrap text-right text-sm text-gray-500"
                     >
                       {{
-                        isRelative && server
-                          ? schedule.dispatched_at.diff(server, "m") < 45
-                            ? schedule.dispatched_at.from(server)
-                            : schedule.dispatched_at.calendar(server)
-                          : schedule.dispatched_at.format("l LTS")
+                        isRelative
+                          ? schedule.dispatched_at.diff(now, "m") < 45
+                            ? schedule.dispatched_at.from(now)
+                            : schedule.dispatched_at.calendar(now)
+                          : schedule.dispatched_at.format(niceFormat)
                       }}
                     </a>
                   </div>
@@ -122,7 +122,7 @@
     </div>
 
     <div class="mt-4 overflow-hidden bg-white shadow sm:rounded-lg">
-      <div class="text-red">Server: {{ server?.format("l LTS") }}</div>
+      <div class="text-red">Clock: {{ now.format(niceFormat) }}</div>
       <button
         class="mt-3 inline-flex w-full items-center justify-center rounded-md border border-transparent bg-red-600 px-4 py-2 font-medium text-white shadow-sm hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 sm:ml-3 sm:mt-0 sm:w-auto sm:text-sm"
         @click="syncTime"
@@ -150,9 +150,15 @@ dayjs.extend(relativeTime);
 dayjs.extend(calendar);
 dayjs.extend(LocalizedFormat);
 
-const isRelative = ref(true);
+const niceFormat = "M/D/YY, h:mm:ss A";
 
-const server = ref();
+const isRelative = ref();
+const now = ref(dayjs());
+
+const syncTime = () => {
+  now.value = dayjs();
+};
+
 const newSchedule = ref({
   name: "Schedule #1",
   dispatched_at: dayjs().add(8, "h").startOf("h").toISOString().slice(0, -5),
@@ -185,19 +191,16 @@ const schedules = ref([
   },
 ]);
 
-const syncTime = () => {
-  server.value = dayjs();
-};
-
 const addSchedule = () => {
-  schedules.value.push({
+  const newScheduleObj = {
     uuid: crypto.randomUUID(),
     icon: CheckIcon,
     iconBackground: "bg-green-500",
     content: "Dispatch",
     name: newSchedule.value.name,
     dispatched_at: dayjs(newSchedule.value.dispatched_at),
-  });
+  };
+  schedules.value.push(newScheduleObj);
 };
 
 const deleteSchedule = (schedule, index) => {
@@ -210,13 +213,14 @@ const deleteSchedule = (schedule, index) => {
   }
 };
 
-let startSyncInterval;
+let syncInterval;
 
 onMounted(() => {
-  startSyncInterval = setInterval(syncTime, 1000);
+  syncInterval = setInterval(syncTime, 500);
+  setTimeout(() => (isRelative.value = !isRelative.value), 10000);
 });
 
 onUnmounted(() => {
-  clearInterval(startSyncInterval);
+  clearInterval(syncInterval);
 });
 </script>
