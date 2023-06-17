@@ -13,20 +13,11 @@
           </div>
           <form
             class="mt-5 sm:flex sm:items-center"
-            @submit.prevent="
-              schedules.push({
-                uuid: randomUUID(),
-                icon: CheckIcon,
-                iconBackground: 'bg-green-500',
-                content: 'Dispatch',
-                name: name,
-                dispatched_at: dayjs(dispatched_at),
-              })
-            "
+            @submit.prevent="addSchedule"
           >
             <div class="w-full sm:max-w-xs">
               <input
-                v-model="dispatched_at"
+                v-model="newSchedule.dispatched_at"
                 step="1"
                 type="datetime-local"
                 class="block w-full rounded-md border-gray-300 shadow-sm focus:border-red-500 focus:ring-red-500 sm:text-sm"
@@ -34,7 +25,7 @@
             </div>
             <div class="mt-2 w-full sm:ml-2 sm:mt-0 sm:max-w-xs">
               <input
-                v-model="name"
+                v-model="newSchedule.name"
                 type="text"
                 class="block w-full rounded-md border-gray-300 shadow-sm focus:border-red-500 focus:ring-red-500 sm:text-sm"
                 placeholder="Schedule #1"
@@ -84,16 +75,7 @@
                   class="absolute left-4 top-4 -ml-px h-full w-0.5 bg-gray-200"
                 />
                 <div class="relative flex space-x-3">
-                  <a
-                    href="#"
-                    @click="
-                      schedule.isConfirmDeletion &&
-                        schedules.splice(scheduleIdx, 1);
-                      schedule.iconBackground = 'bg-red-500';
-                      schedule.icon = TrashIcon;
-                      schedule.isConfirmDeletion = true;
-                    "
-                  >
+                  <a href="#" @click="deleteSchedule(schedule, scheduleIdx)">
                     <span
                       :class="[
                         schedule.iconBackground,
@@ -117,17 +99,19 @@
                         </a>
                       </p>
                     </div>
-                    <div
+                    <a
+                      href="#"
+                      @click="isRelative = !isRelative"
                       class="whitespace-nowrap text-right text-sm text-gray-500"
                     >
                       {{
-                        server
+                        isRelative && server
                           ? schedule.dispatched_at.diff(server, "m") < 45
                             ? schedule.dispatched_at.from(server)
                             : schedule.dispatched_at.calendar(server)
                           : schedule.dispatched_at.format("l LTS")
                       }}
-                    </div>
+                    </a>
                   </div>
                 </div>
               </div>
@@ -166,9 +150,13 @@ dayjs.extend(relativeTime);
 dayjs.extend(calendar);
 dayjs.extend(LocalizedFormat);
 
+const isRelative = ref(true);
+
 const server = ref();
-const name = ref("Schedule #1");
-const dispatched_at = ref("2023-06-17T01:55:00");
+const newSchedule = ref({
+  name: "Schedule #1",
+  dispatched_at: dayjs().add(8, "h").startOf("h").toISOString().slice(0, -5),
+});
 
 const schedules = ref([
   {
@@ -197,21 +185,38 @@ const schedules = ref([
   },
 ]);
 
-let interval;
-
 const syncTime = () => {
   server.value = dayjs();
 };
 
+const addSchedule = () => {
+  schedules.value.push({
+    uuid: crypto.randomUUID(),
+    icon: CheckIcon,
+    iconBackground: "bg-green-500",
+    content: "Dispatch",
+    name: newSchedule.value.name,
+    dispatched_at: dayjs(newSchedule.value.dispatched_at),
+  });
+};
+
+const deleteSchedule = (schedule, index) => {
+  if (schedule.isConfirmDeletion) {
+    schedules.value.splice(index, 1);
+  } else {
+    schedule.isConfirmDeletion = true;
+    schedule.iconBackground = "bg-red-500";
+    schedule.icon = TrashIcon;
+  }
+};
+
+let startSyncInterval;
+
 onMounted(() => {
-  interval = setInterval(() => {
-    syncTime();
-  }, 1000);
+  startSyncInterval = setInterval(syncTime, 1000);
 });
 
 onUnmounted(() => {
-  clearInterval(interval);
+  clearInterval(startSyncInterval);
 });
-
-const randomUUID = () => crypto.randomUUID();
 </script>
