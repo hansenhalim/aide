@@ -411,7 +411,7 @@ const schedules = ref([
     iconBackground: "bg-green-500",
     name: "Fade to source #2",
     dispatched_at: "2023-06-18T08:43:00",
-    fetch_url: "http://10.10.0.107:8088/api/?Function=Fade",
+    fetch_url: "http://vmix.local:8088/api/?Function=Fade",
     open: false,
   },
   {
@@ -429,7 +429,7 @@ const schedules = ref([
     iconBackground: "bg-blue-500",
     name: "Fade to source #1",
     dispatched_at: "2023-06-18T08:51:03",
-    fetch_url: "http://10.10.0.107:8088/api/?Function=Fade",
+    fetch_url: "http://vmix.local:8088/api/?Function=Fade",
     open: false,
   },
   {
@@ -438,7 +438,7 @@ const schedules = ref([
     iconBackground: "bg-green-500",
     name: "Fade to source #2",
     dispatched_at: "2023-06-18T10:43:00",
-    fetch_url: "http://10.10.0.107:8088/api/?Function=Fade",
+    fetch_url: "http://vmix.local:8088/api/?Function=Fade",
     open: false,
   },
   {
@@ -456,7 +456,7 @@ const schedules = ref([
     iconBackground: "bg-blue-500",
     name: "Fade to source #1",
     dispatched_at: "2023-06-18T10:51:03",
-    fetch_url: "http://10.10.0.107:8088/api/?Function=Fade",
+    fetch_url: "http://vmix.local:8088/api/?Function=Fade",
     open: false,
   },
   {
@@ -465,7 +465,7 @@ const schedules = ref([
     iconBackground: "bg-green-500",
     name: "Fade to source #2",
     dispatched_at: "2023-06-18T12:43:00",
-    fetch_url: "http://10.10.0.107:8088/api/?Function=Fade",
+    fetch_url: "http://vmix.local:8088/api/?Function=Fade",
     open: false,
   },
   {
@@ -483,7 +483,7 @@ const schedules = ref([
     iconBackground: "bg-blue-500",
     name: "Fade to source #1",
     dispatched_at: "2023-06-18T12:51:03",
-    fetch_url: "http://10.10.0.107:8088/api/?Function=Fade",
+    fetch_url: "http://vmix.local:8088/api/?Function=Fade",
     open: false,
   },
   {
@@ -492,7 +492,7 @@ const schedules = ref([
     iconBackground: "bg-green-500",
     name: "Fade to source #2",
     dispatched_at: "2023-06-18T14:43:00",
-    fetch_url: "http://10.10.0.107:8088/api/?Function=Fade",
+    fetch_url: "http://vmix.local:8088/api/?Function=Fade",
     open: false,
   },
   {
@@ -510,7 +510,7 @@ const schedules = ref([
     iconBackground: "bg-blue-500",
     name: "Fade to source #1",
     dispatched_at: "2023-06-18T14:51:03",
-    fetch_url: "http://10.10.0.107:8088/api/?Function=Fade",
+    fetch_url: "http://vmix.local:8088/api/?Function=Fade",
     open: false,
   },
   {
@@ -519,7 +519,7 @@ const schedules = ref([
     iconBackground: "bg-green-500",
     name: "Fade to source #2",
     dispatched_at: "2023-06-18T16:43:00",
-    fetch_url: "http://10.10.0.107:8088/api/?Function=Fade",
+    fetch_url: "http://vmix.local:8088/api/?Function=Fade",
     open: false,
   },
   {
@@ -537,7 +537,7 @@ const schedules = ref([
     iconBackground: "bg-blue-500",
     name: "Fade to source #1",
     dispatched_at: "2023-06-18T16:51:03",
-    fetch_url: "http://10.10.0.107:8088/api/?Function=Fade",
+    fetch_url: "http://vmix.local:8088/api/?Function=Fade",
     open: false,
   },
   {
@@ -546,7 +546,7 @@ const schedules = ref([
     iconBackground: "bg-green-500",
     name: "Fade to source #2",
     dispatched_at: "2023-06-18T18:43:00",
-    fetch_url: "http://10.10.0.107:8088/api/?Function=Fade",
+    fetch_url: "http://vmix.local:8088/api/?Function=Fade",
     open: false,
   },
   {
@@ -564,7 +564,7 @@ const schedules = ref([
     iconBackground: "bg-blue-500",
     name: "Fade to source #1",
     dispatched_at: "2023-06-18T18:51:03",
-    fetch_url: "http://10.10.0.107:8088/api/?Function=Fade",
+    fetch_url: "http://vmix.local:8088/api/?Function=Fade",
     open: false,
   },
 ]);
@@ -580,7 +580,7 @@ const addSchedule = () => {
     iconBackground: "bg-green-500",
     name: newSchedule.value.name,
     dispatched_at: newSchedule.value.dispatched_at,
-    fetch_url: "http://10.10.0.107:8088/api/?Function=Fade",
+    fetch_url: "http://vmix.local:8088/api/?Function=Fade",
     open: false,
   };
   schedules.value.push(newScheduleObj);
