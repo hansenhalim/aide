@@ -2,13 +2,13 @@
   <div
     class="mx-auto flex min-h-screen max-w-7xl flex-col items-center justify-center sm:px-6 lg:px-8"
   >
-    <div class="overflow-hidden bg-white shadow sm:rounded-lg">
+    <div class="w-full max-w-lg overflow-hidden bg-white shadow sm:rounded-lg">
       <div class="px-4 py-5 sm:p-6">
         <!-- assistance -->
         <SwitchGroup
           as="div"
           class="flex items-center justify-between"
-          @click="recalculateTimeout()"
+          @click="recalculateTimeout"
         >
           <span class="flex flex-grow flex-col">
             <SwitchLabel
@@ -108,6 +108,7 @@
             <li
               v-for="(schedule, scheduleIdx) in schedules"
               :key="schedule.uuid"
+              ref="scheduleRefs"
             >
               <div class="relative pb-8">
                 <span
@@ -118,7 +119,7 @@
                   <span
                     :class="[
                       schedule.timeout ? 'bg-red-500' : 'bg-gray-500',
-                      'flex h-8 w-8 items-center justify-center rounded-full ring-8 ring-white',
+                      'flex h-8 w-8 items-center justify-center rounded-full ring-8 ring-white transition',
                     ]"
                   >
                     <ClockIcon class="h-5 w-5 text-white" />
@@ -130,10 +131,7 @@
                       <p class="text-sm text-gray-500">
                         {{ schedule.dispatched_at.slice(11) }}
                         <a
-                          @click="
-                            schedule.open = true;
-                            disableAssistance();
-                          "
+                          @click="schedule.isModalShown = true"
                           href="#"
                           class="font-medium text-gray-900"
                         >
@@ -158,11 +156,11 @@
                 </div>
               </div>
 
-              <TransitionRoot as="template" :show="schedule.open">
+              <TransitionRoot as="template" :show="schedule.isModalShown">
                 <Dialog
                   as="div"
                   class="fixed inset-0 z-10 overflow-y-auto"
-                  @close="schedule.open = false"
+                  @close="schedule.isModalShown = false"
                 >
                   <div
                     class="flex min-h-screen items-end justify-center px-4 pb-20 pt-4 text-center sm:block sm:p-0"
@@ -216,30 +214,12 @@
                               >
                                 {{ schedule.name }}
                               </DialogTitle>
-                              <div class="mt-2">
-                                <form
-                                  class="mt-5 sm:flex sm:items-center"
-                                  @submit.prevent="dispatchSchedule(schedule)"
-                                >
-                                  <div class="w-full sm:max-w-xs">
-                                    <input
-                                      v-model="schedule.dispatched_at"
-                                      step="1"
-                                      type="datetime-local"
-                                      class="block w-full rounded-md border-gray-300 shadow-sm focus:border-red-500 focus:ring-red-500 sm:text-sm"
-                                    />
-                                  </div>
-                                  <div
-                                    class="mt-2 w-full sm:ml-2 sm:mt-0 sm:max-w-xs"
-                                  >
-                                    <input
-                                      v-model="schedule.name"
-                                      type="text"
-                                      class="block w-full rounded-md border-gray-300 shadow-sm focus:border-red-500 focus:ring-red-500 sm:text-sm"
-                                      placeholder="Schedule #1"
-                                    />
-                                  </div>
-                                </form>
+                              <div class="mt-2 text-sm text-gray-500">
+                                Lorem ipsum dolor sit amet consectetur
+                                adipisicing elit. Optio ad quasi doloremque,
+                                fugit aliquam temporibus voluptatum repellendus
+                                officiis accusamus quae quo? Ut iure at, qui
+                                vitae iusto illum quam harum?
                               </div>
                             </div>
                           </div>
@@ -257,7 +237,7 @@
                           <button
                             type="button"
                             class="mt-3 inline-flex w-full justify-center rounded-md border border-gray-300 bg-white px-4 py-2 text-base font-medium text-gray-700 shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 sm:ml-3 sm:mt-0 sm:w-auto sm:text-sm"
-                            @click="schedule.open = false"
+                            @click="schedule.isModalShown = false"
                           >
                             Cancel
                           </button>
@@ -317,7 +297,7 @@ const recalculateTimeout = () => {
     const timeout = dayjs(schedule.dispatched_at).diff(now.value);
 
     clearTimeout(schedule.timeout);
-    delete schedule.timeout;
+    schedule.timeout = null;
 
     if (isAssistanceEnabled.value && timeout > 0) {
       schedule.timeout = setTimeout(() => {
@@ -325,24 +305,31 @@ const recalculateTimeout = () => {
       }, timeout);
     }
   });
+
+  if (isAssistanceEnabled.value) scrollToNearestSchedule();
 };
 
 const dispatchSchedule = (schedule) => {
   console.log(`Dispatching ${schedule.name}`);
 
+  clearTimeout(schedule.timeout);
+  schedule.timeout = null;
+
   if (schedule.fetch_url) {
     fetch(schedule.fetch_url);
     console.log(`Dispatched ${schedule.name}`);
   }
+
+  scrollToNearestSchedule();
 };
 
-const disableAssistance = () => (isAssistanceEnabled.value = false);
+const scheduleRefs = ref([]);
 
-const input = ref(null);
-
-const scrollToItem = (index) => {
-  const listItem = this.$refs.listItems[index];
-  this.$refs.container.scrollTop = listItem.offsetTop;
+const scrollToNearestSchedule = () => {
+  const index = schedules.value.findIndex((schedule) => schedule.timeout);
+  scheduleRefs.value[index].scrollIntoView({
+    behavior: "smooth",
+  });
 };
 
 onMounted(() => {
