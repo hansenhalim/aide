@@ -259,6 +259,20 @@
         {{ now.format(goodTemplate) }}
       </span>
     </div>
+
+    <!-- google -->
+    <div class="mt-4">
+      <!-- 118289694952-idlqqjbiuagqm8laevkp8lrq3gm8emur.apps.googleusercontent.com -->
+    </div>
+
+    <!-- button -->
+    <button
+      @click="loadLivestreams"
+      type="button"
+      class="mt-4 inline-flex items-center rounded border border-transparent bg-indigo-600 px-2.5 py-1.5 text-xs font-medium text-white shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
+    >
+      loadLivestreams
+    </button>
   </div>
 </template>
 
@@ -306,7 +320,12 @@ const recalculateTimeout = () => {
     }
   });
 
-  if (isAssistanceEnabled.value) scrollToNearestSchedule();
+  if (isAssistanceEnabled.value) {
+    scrollToNearestSchedule();
+    document.title = "Assisting...";
+  } else {
+    document.title = "AIDE";
+  }
 };
 
 const dispatchSchedule = (schedule) => {
@@ -327,13 +346,79 @@ const scheduleRefs = ref([]);
 
 const scrollToNearestSchedule = () => {
   const index = schedules.value.findIndex((schedule) => schedule.timeout);
-  scheduleRefs.value[index].scrollIntoView({
+  scheduleRefs.value[Math.max(index, 0)].scrollIntoView({
     behavior: "smooth",
   });
 };
 
+let tokenClient;
+
+function gapiInit() {
+  gapi.client.init({}).then(function () {
+    gapi.client.load(
+      "https://www.googleapis.com/discovery/v1/apis/youtube/v3/rest"
+    );
+  });
+}
+
+function gapiLoad() {
+  gapi.load("client", gapiInit);
+}
+
+function gisInit() {
+  tokenClient = google.accounts.oauth2.initTokenClient({
+    client_id:
+      "118289694952-idlqqjbiuagqm8laevkp8lrq3gm8emur.apps.googleusercontent.com",
+    scope: "https://www.googleapis.com/auth/youtube",
+  });
+}
+
+function loadLivestreams() {
+  tokenClient.callback = (resp) => {
+    if (resp.error !== undefined) {
+      throw resp;
+    }
+    // GIS has automatically updated gapi.client with the newly issued access token.
+    console.log(gapi.client.getToken());
+
+    gapi.client.youtube.liveBroadcasts
+      .list({
+        part: ["snippet,contentDetails,status"],
+        broadcastStatus: "upcoming",
+      })
+      .then((response) => console.log(response.result))
+      .catch((err) => console.log(err));
+  };
+
+  // Conditionally ask users to select the Google Account they'd like to use,
+  // and explicitly obtain their consent to fetch their Calendar.
+  // NOTE: To request an access token a user gesture is necessary.
+  if (gapi.client.getToken() === null) {
+    // Prompt the user to select a Google Account and asked for consent to share their data
+    // when establishing a new session.
+    tokenClient.requestAccessToken({ prompt: "consent" });
+  } else {
+    // Skip display of account chooser and consent dialog for an existing session.
+    tokenClient.requestAccessToken({ prompt: "" });
+  }
+}
+
 onMounted(() => {
   setInterval(() => (now.value = dayjs()), 500);
   setTimeout(() => (isRelative.value = true), 5000);
+
+  const apiScript = document.createElement("script");
+  apiScript.src = "https://apis.google.com/js/api.js";
+  apiScript.async = true;
+  apiScript.defer = true;
+  apiScript.onload = gapiLoad;
+  document.body.appendChild(apiScript);
+
+  const identityScript = document.createElement("script");
+  identityScript.src = "https://accounts.google.com/gsi/client";
+  identityScript.async = true;
+  identityScript.defer = true;
+  identityScript.onload = gisInit;
+  document.body.appendChild(identityScript);
 });
 </script>
